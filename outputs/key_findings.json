@@ -1,0 +1,209 @@
+{
+  "first_date": "2020-01-22",
+  "last_date": "2023-03-09",
+  "countries": 197,
+  "total_cases": 676568028,
+  "total_deaths": 6881787,
+  "global_cfr_pct": 1.01716113017389,
+  "top_cases": [
+    {
+      "country": "United States",
+      "value": 103802702.0,
+      "share_of_total": 15.342537291756269
+    },
+    {
+      "country": "India",
+      "value": 44690738.0,
+      "share_of_total": 6.605505455543045
+    },
+    {
+      "country": "France",
+      "value": 39866718.0,
+      "share_of_total": 5.892492158970302
+    },
+    {
+      "country": "Germany",
+      "value": 38249060.0,
+      "share_of_total": 5.653394546749111
+    },
+    {
+      "country": "Brazil",
+      "value": 37076053.0,
+      "share_of_total": 5.480018485295613
+    }
+  ],
+  "top_deaths": [
+    {
+      "country": "United States",
+      "value": 1123836.0,
+      "share_of_total": 16.330583902117286
+    },
+    {
+      "country": "Brazil",
+      "value": 699276.0,
+      "share_of_total": 10.161256080724382
+    },
+    {
+      "country": "India",
+      "value": 530779.0,
+      "share_of_total": 7.712807734386431
+    },
+    {
+      "country": "Russia",
+      "value": 388478.0,
+      "share_of_total": 5.645016330787338
+    },
+    {
+      "country": "Mexico",
+      "value": 333188.0,
+      "share_of_total": 4.841591290169254
+    }
+  ],
+  "ranking_population_floor": 1000000,
+  "ranking_countries": 157,
+  "top_cases_per_100k": [
+    {
+      "country": "Austria",
+      "value": 66187.85530289571,
+      "share_of_total": null
+    },
+    {
+      "country": "Slovenia",
+      "value": 64057.26594232039,
+      "share_of_total": null
+    },
+    {
+      "country": "South Korea",
+      "value": 59715.252337842016,
+      "share_of_total": null
+    },
+    {
+      "country": "France",
+      "value": 58517.32372069124,
+      "share_of_total": null
+    },
+    {
+      "country": "Denmark",
+      "value": 58070.38710383065,
+      "share_of_total": null
+    }
+  ],
+  "top_deaths_per_100k": [
+    {
+      "country": "Peru",
+      "value": 665.8377574613202,
+      "share_of_total": null
+    },
+    {
+      "country": "Bulgaria",
+      "value": 550.166260220812,
+      "share_of_total": null
+    },
+    {
+      "country": "Hungary",
+      "value": 504.7643201333285,
+      "share_of_total": null
+    },
+    {
+      "country": "Bosnia and Herzegovina",
+      "value": 496.2181653034383,
+      "share_of_total": null
+    },
+    {
+      "country": "North Macedonia",
+      "value": 463.765611650299,
+      "share_of_total": null
+    }
+  ],
+  "population_covered_countries": 196,
+  "max_daily_cases": {
+    "country": "United States",
+    "date": "2022-01-10",
+    "value": 1354505,
+    "neighbour_max": 878995
+  },
+  "max_daily_deaths": {
+    "country": "China",
+    "date": "2023-01-15",
+    "value": 59961,
+    "neighbour_max": 97
+  },
+  "global_peaks_cases": [
+    {
+      "date": "2021-04-28",
+      "avg_7d": 826677.0
+    },
+    {
+      "date": "2022-01-24",
+      "avg_7d": 3436886.0
+    },
+    {
+      "date": "2022-07-24",
+      "avg_7d": 1111742.857142857
+    }
+  ],
+  "global_peaks_deaths": [
+    {
+      "date": "2021-01-26",
+      "avg_7d": 14855.0
+    },
+    {
+      "date": "2021-05-26",
+      "avg_7d": 11771.42857142857
+    },
+    {
+      "date": "2023-01-21",
+      "avg_7d": 12565.57142857143
+    }
+  ],
+  "by_year": [
+    {
+      "year": 2020,
+      "cases": 83777901,
+      "deaths": 1901762,
+      "cases_share": 12.382775646028605,
+      "deaths_share": 27.634711739843155,
+      "days": 345
+    },
+    {
+      "year": 2021,
+      "cases": 204948804,
+      "deaths": 3567242,
+      "cases_share": 30.29241635994067,
+      "deaths_share": 51.83598388034968,
+      "days": 365
+    },
+    {
+      "year": 2022,
+      "cases": 371734966,
+      "deaths": 1224357,
+      "cases_share": 54.94421116807489,
+      "deaths_share": 17.791265553554624,
+      "days": 365
+    },
+    {
+      "year": 2023,
+      "cases": 16106357,
+      "deaths": 188426,
+      "cases_share": 2.380596825955837,
+      "deaths_share": 2.7380388262525415,
+      "days": 68
+    }
+  ],
+  "recovered": {
+    "last_date": "2021-08-04",
+    "total": 130898355,
+    "countries_reporting": 189,
+    "countries_with_series": 189
+  },
+  "revisions": {
+    "negative_daily_cases_records": 171,
+    "negative_daily_cases_countries": 84,
+    "negative_daily_deaths_records": 199,
+    "largest_negative_cases": {
+      "country": "France",
+      "date": "2021-05-20",
+      "value": -348840
+    }
+  }
+}

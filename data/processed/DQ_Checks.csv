@@ -1,0 +1,33 @@
+Section,Item,Value,Status,Note
+Summary,Dataset,"JHU CSSE COVID-19 Data Repository, global time series (confirmed, deaths, recovered)",,
+Summary,Source,https://github.com/CSSEGISandData/COVID-19,,
+Summary,Coverage period,2020-01-22 to 2023-03-09,,
+Summary,Rows (Fact_Covid),"225,171",,
+Summary,Columns (Fact_Covid),11,,
+Summary,Countries,197,,
+Summary,Pipeline run date,2026-10-07,,
+Summary,Overall validation status,WARNING,WARNING,
+Structure,Row count equals countries x dates,"225,171 = 197 x 1,143",PASS,
+Structure,Date columns identical across the three raw files,Yes,PASS,
+Structure,Malformed dates in raw headers,0,PASS,
+Structure,Missing calendar dates in the date range,0,PASS,
+Structure,Duplicate rows,0,PASS,
+Structure,Duplicate country/date combinations,0,PASS,
+Structure,Duplicate rows or province/country keys in raw files,0,PASS,
+Completeness,Missing country identifiers (ISO code),0,PASS,
+Completeness,Countries without a region,0,PASS,
+Completeness,"Nulls in Confirmed, Deaths and daily case/death fields",0,PASS,
+Completeness,Rows with no recovery figure,"119,142 of 225,171 (52.9%)",WARNING,Recovery series ends 2021-08-04; 8 countries never reported recoveries
+Validity,Non-numeric cells in raw files,0,PASS,
+Validity,Negative cumulative values,0,PASS,
+Validity,Records with deaths greater than confirmed cases,302 records in 3 countries,WARNING,Retained and flagged (Inconsistency_Flag)
+Validity,Records with recoveries greater than confirmed cases,35,WARNING,Retained and flagged (Inconsistency_Flag)
+Validity,Records where Confirmed - Deaths - Recovered is negative,459,WARNING,Active left blank for these records
+Validity,Negative daily cases (reported revisions),171 records in 84 countries,WARNING,Kept as reported; flagged with Revision_Flag
+Validity,Negative daily deaths (reported revisions),199 records in 80 countries,WARNING,Kept as reported; flagged with Revision_Flag
+Validity,Daily values sum to the final cumulative total for every country,Yes,PASS,
+Reference data,Population coverage,196 of 197 countries (99.5%),PASS,No population for: Antarctica
+Reference data,Countries without an ISO code,0,PASS,
+Reference data,Non-geographic entries excluded,4,PASS,"Diamond Princess, MS Zaandam, Summer Olympics 2020, Winter Olympics 2022"
+Reference data,Province-level rows aggregated to country,91 rows into 8 countries,PASS,Cases and populations are summed over the same rows
+Reconciliation,Raw file totals vs analytical table totals (every date),"max difference: confirmed 0, deaths 0",PASS,Raw totals exclude the non-geographic entries

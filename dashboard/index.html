@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COVID-19 global analytics</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<noscript>This dashboard needs JavaScript. It runs locally and makes no network requests.</noscript>
+<div class="app">
+  <nav class="rail" aria-label="Pages">
+    <svg class="logo" viewBox="0 0 48 48" fill="none" stroke="#6B8676" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+      <line x1="33" y1="24" x2="44" y2="24"/><line x1="31.8" y1="28.5" x2="40.3" y2="33.4"/><line x1="28.5" y1="31.8" x2="33.4" y2="40.3"/>
+      <line x1="24" y1="33" x2="24" y2="44"/><line x1="19.5" y1="31.8" x2="14.6" y2="40.3"/><line x1="16.2" y1="28.5" x2="7.7" y2="33.4"/>
+      <line x1="15" y1="24" x2="4" y2="24"/><line x1="16.2" y1="19.5" x2="7.7" y2="14.6"/><line x1="19.5" y1="16.2" x2="14.6" y2="7.7"/>
+      <line x1="24" y1="15" x2="24" y2="4"/><line x1="28.5" y1="16.2" x2="33.4" y2="7.7"/><line x1="31.8" y1="19.5" x2="40.3" y2="14.6"/>
+    </svg>
+    <a href="#overview" data-nav="overview" title="Overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Overview</span></a>
+    <a href="#trends" data-nav="trends" title="Global trends"><svg viewBox="0 0 24 24"><polyline points="3,17 9,11 13,15 21,6"/><polyline points="15,6 21,6 21,12"/></svg><span>Trends</span></a>
+    <a href="#compare" data-nav="compare" title="Country comparison"><svg viewBox="0 0 24 24"><line x1="6" y1="20" x2="6" y2="11"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg><span>Compare</span></a>
+    <a href="#detail" data-nav="detail" title="Country detail"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Country</span></a>
+    <a href="#quality" data-nav="quality" title="Data quality and methodology"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><polyline points="9,12 11,14 15,10"/></svg><span>Quality</span></a>
+  </nav>
+
+  <main class="main" id="main">
+    <header class="top">
+      <div class="heading">
+        <h1 id="pageTitle">COVID-19 global overview</h1>
+        <p id="pageSub" class="sub"></p>
+      </div>
+      <div class="controls">
+        <label class="pill selectpill"><span class="sr">Region</span><select id="regionSel"></select></label>
+        <div class="pill combo" id="countryCombo">
+          <input id="countryInput" type="text" placeholder="Search country" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="countryList" aria-label="Country">
+          <button id="countryClear" class="clear" type="button" aria-label="Clear country" hidden>&times;</button>
+          <ul id="countryList" role="listbox" hidden></ul>
+        </div>
+        <a class="circle" id="dqBadge" href="#quality" title="Data quality: warnings from the validation checks" aria-label="Data quality warnings">
+          <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><polyline points="9,12 11,14 15,10"/></svg>
+          <span class="badge" id="dqCount">0</span>
+        </a>
+      </div>
+    </header>
+
+    <section class="filters" aria-label="Date range and reset">
+      <label>From <input type="date" id="fromDate"></label>
+      <label>To <input type="date" id="toDate"></label>
+      <div class="presets" id="presets" role="group" aria-label="Date presets"></div>
+      <button id="resetBtn" class="btn ghost" type="button">Reset filters</button>
+      <p class="scope" id="scopeLine" aria-live="polite"></p>
+    </section>
+
+    <section class="page" id="page-overview" hidden>
+      <div class="grid">
+        <article class="card kpi"><div class="lbl">Reported cases</div><div class="val" data-kpi="cases">-</div><div class="note" data-kpi-note="cases"></div></article>
+        <article class="card kpi"><div class="lbl">Reported deaths</div><div class="val" data-kpi="deaths">-</div><div class="note" data-kpi-note="deaths"></div></article>
+        <article class="card kpi"><div class="lbl">Case fatality ratio</div><div class="val" data-kpi="cfr">-</div><div class="note">reported deaths &divide; reported cases</div></article>
+        <article class="card kpi accent"><div class="lbl">Peak 7-day average, cases</div><div class="val" data-kpi="peak">-</div><div class="note" data-kpi-note="peak"></div></article>
+
+        <article class="card span2"><div class="card-head"><h2>Daily cases and 7-day average</h2><div class="legend" id="ovLegend"></div></div><div class="chart" id="ovDaily"></div></article>
+        <article class="card"><h2>Reported cases by region</h2><div class="donutbox" id="ovDonut"></div><ul class="reglist" id="ovRegions"></ul></article>
+        <article class="card selcard" id="selCard"></article>
+
+        <article class="card span2"><h2>Top 10 by reported cases</h2><p class="note" id="topCasesNote"></p><ol class="ranklist" id="topCases"></ol></article>
+        <article class="card span2"><h2>Top 10 by reported cases per 100K</h2><p class="note" id="topRateNote"></p><ol class="ranklist" id="topRate"></ol></article>
+
+        <article class="card span4 strip" id="ovDq"></article>
+      </div>
+    </section>
+
+    <section class="page" id="page-trends" hidden>
+      <div class="grid">
+        <article class="card span4"><div class="card-head"><h2>Daily reported cases</h2><div class="legend" id="trLegendC"></div></div><div class="chart" id="trDaily"></div></article>
+        <article class="card span4"><div class="card-head"><h2>Daily reported deaths</h2><div class="legend" id="trLegendD"></div></div><div class="chart" id="trDeaths"></div></article>
+        <article class="card span2"><div class="card-head"><h2>Monthly reported cases</h2><div class="legend" id="trLegendMC"></div></div><div class="chart" id="trMonthC"></div></article>
+        <article class="card span2"><div class="card-head"><h2>Monthly reported deaths</h2><div class="legend" id="trLegendMD"></div></div><div class="chart" id="trMonthD"></div></article>
+        <article class="card span2"><div class="card-head"><h2>Cumulative reported cases</h2></div><div class="chart" id="trCumC"></div></article>
+        <article class="card span2"><div class="card-head"><h2>Cumulative reported deaths</h2></div><div class="chart" id="trCumD"></div></article>
+        <article class="card span4 strip"><p class="note">Daily values are the change in each country's cumulative total, so a negative bar is a downward revision by that country, not a day with negative cases. Single-day spikes can be backlog added in one go. Months at the edges of the selection are partial and drawn lighter.</p></article>
+      </div>
+    </section>
+
+    <section class="page" id="page-compare" hidden>
+      <div class="grid">
+        <article class="card span4">
+          <div class="tablebar">
+            <input id="tblSearch" type="search" placeholder="Search country, code or region" aria-label="Search countries in the table">
+            <span id="tblCount" class="note"></span>
+          </div>
+          <div class="tablewrap">
+            <table id="cmpTable">
+              <thead><tr>
+                <th data-sort="name" scope="col"><button type="button">Country</button></th>
+                <th data-sort="region" scope="col"><button type="button">Region</button></th>
+                <th data-sort="cases" scope="col" class="num"><button type="button">Reported cases</button></th>
+                <th data-sort="deaths" scope="col" class="num"><button type="button">Reported deaths</button></th>
+                <th data-sort="c100" scope="col" class="num"><button type="button">Cases per 100K</button></th>
+                <th data-sort="d100" scope="col" class="num"><button type="button">Deaths per 100K</button></th>
+                <th data-sort="cfr" scope="col" class="num"><button type="button">CFR</button></th>
+                <th data-sort="pop" scope="col" class="num"><button type="button">Population</button></th>
+              </tr></thead>
+              <tbody id="cmpBody"></tbody>
+            </table>
+          </div>
+          <p class="note" id="tblNote"></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page" id="page-detail" hidden>
+      <div class="grid">
+        <article class="card span4" id="detailEmpty"></article>
+        <div class="grid inner span4" id="detailBody" hidden>
+          <article class="card span4 headcard" id="detailHead"></article>
+          <article class="card kpi"><div class="lbl">Reported cases</div><div class="val" data-dk="cases">-</div><div class="note" data-dn="cases"></div></article>
+          <article class="card kpi"><div class="lbl">Reported deaths</div><div class="val" data-dk="deaths">-</div><div class="note" data-dn="deaths"></div></article>
+          <article class="card kpi"><div class="lbl">Case fatality ratio</div><div class="val" data-dk="cfr">-</div><div class="note">reported deaths &divide; reported cases</div></article>
+          <article class="card kpi"><div class="lbl">Recoveries (last available)</div><div class="val" data-dk="rec">-</div><div class="note" data-dn="rec"></div></article>
+          <article class="card kpi"><div class="lbl">Cases per 100K</div><div class="val" data-dk="c100">-</div><div class="note" data-dn="c100"></div></article>
+          <article class="card kpi"><div class="lbl">Deaths per 100K</div><div class="val" data-dk="d100">-</div><div class="note" data-dn="d100"></div></article>
+          <article class="card kpi"><div class="lbl">Rank by reported cases</div><div class="val" data-dk="rank">-</div><div class="note" data-dn="rank"></div></article>
+          <article class="card kpi"><div class="lbl">Days with a downward revision</div><div class="val" data-dk="rev">-</div><div class="note" data-dn="rev"></div></article>
+          <article class="card span2"><div class="card-head"><h2>Daily cases and 7-day average</h2><div class="legend" id="dtLegendC"></div></div><div class="chart" id="dtDaily"></div></article>
+          <article class="card span2"><div class="card-head"><h2>Daily deaths and 7-day average</h2><div class="legend" id="dtLegendD"></div></div><div class="chart" id="dtDeaths"></div></article>
+          <article class="card span2"><div class="card-head"><h2>Cumulative reported cases</h2></div><div class="chart" id="dtCumC"></div></article>
+          <article class="card span2"><div class="card-head"><h2>Cumulative reported deaths</h2></div><div class="chart" id="dtCumD"></div></article>
+          <article class="card span2"><h2>Peaks in the selected period</h2><table class="mini" id="dtPeaks"></table></article>
+          <article class="card span2"><h2>Data notes for this country</h2><ul class="notes" id="dtNotes"></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-quality" hidden>
+      <div class="grid">
+        <article class="card span2"><h2>Coverage and source</h2><dl class="facts" id="dqFacts"></dl></article>
+        <article class="card span2"><h2>Validation summary</h2><div id="dqSummary"></div></article>
+        <article class="card span4"><h2>Your current selection</h2><p class="note">Counts for the countries and dates currently selected in the filters.</p><div id="dqSelection"></div></article>
+        <article class="card span4">
+          <div class="card-head"><h2>Validation checks</h2><label class="toggle"><input type="checkbox" id="warnOnly"> Show warnings only</label></div>
+          <div class="tablewrap short"><table class="mini checks"><thead><tr><th>Category</th><th>Check</th><th>Result</th><th>Status</th><th>Note</th></tr></thead><tbody id="dqBody"></tbody></table></div>
+        </article>
+        <article class="card span4"><h2>Recovery data coverage</h2><div id="dqRecovery"></div></article>
+        <article class="card span4"><h2>Methodology</h2><ul class="notes" id="dqMethod"></ul></article>
+      </div>
+    </section>
+
+    <footer class="foot" id="foot"></footer>
+  </main>
+</div>
+<div id="tooltip" role="tooltip" hidden></div>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

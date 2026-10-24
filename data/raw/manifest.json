@@ -1,0 +1,32 @@
+{
+  "time_series_covid19_confirmed_global.csv": {
+    "url": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
+    "accessed": "2026-10-07",
+    "bytes": 1819904,
+    "sha256": "e6234a59eec4359d2577358b5220e1a7e3da74c162913cdb7d882db1413f98c2"
+  },
+  "time_series_covid19_deaths_global.csv": {
+    "url": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
+    "accessed": "2026-10-07",
+    "bytes": 1255258,
+    "sha256": "4e87757a3e059c45650a1e1856614f8e339ee3c70653c378a7ba6f7b0ee8c72e"
+  },
+  "time_series_covid19_recovered_global.csv": {
+    "url": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv",
+    "accessed": "2026-10-07",
+    "bytes": 1020844,
+    "sha256": "381bb7527a52114d3f07b40c25dc8aba0b6283aa535e97cba97152ce3cbdb526"
+  },
+  "UID_ISO_FIPS_LookUp_Table.csv": {
+    "url": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv",
+    "accessed": "2026-10-07",
+    "bytes": 416410,
+    "sha256": "80bbd734ae7547dac8915d0960d01f43975c817bcddebebd19c026718a1368db"
+  },
+  "country_codes.csv": {
+    "url": "https://raw.githubusercontent.com/datasets/country-codes/master/data/country-codes.csv",
+    "accessed": "2026-10-07",
+    "bytes": 133966,
+    "sha256": "07918cb63dd8bc43e52110def00d490998634360605e9d8c602865e2260802fd"
+  }
+}

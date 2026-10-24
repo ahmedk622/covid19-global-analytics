@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# raw downloads are re-created by src/ingest.py
+data/raw/*.csv
+
+# local sqlite copy used to run sql/analysis.sql
+outputs/*.db
+
+# Power BI local cache
+*.pbix.bak
+.pbi/
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+

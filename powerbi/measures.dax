@@ -1,0 +1,224 @@
+// COVID-19 analytics model: measures
+// Create an empty table named _Measures (Home > Enter data), then add each measure to it.
+// Model: Dim_Date[Date] 1 -> * Fact_Covid[Date];  Dim_Country[ISO_Code] 1 -> * Fact_Covid[ISO_Code]
+
+// ---------- Cumulative (as of the last date in the current filter) ----------
+
+Total Cases =
+CALCULATE ( SUM ( Fact_Covid[Confirmed] ), LASTDATE ( Dim_Date[Date] ) )
+
+Total Deaths =
+CALCULATE ( SUM ( Fact_Covid[Deaths] ), LASTDATE ( Dim_Date[Date] ) )
+
+// Recoveries end on 2021-08-04 in the source. Shows the value on the last date that has data.
+Total Recoveries =
+LASTNONBLANKVALUE ( Dim_Date[Date], SUM ( Fact_Covid[Recovered] ) )
+
+Recoveries As-Of Date =
+CALCULATE (
+    MAX ( Dim_Date[Date] ),
+    LASTNONBLANK ( Dim_Date[Date], CALCULATE ( COUNT ( Fact_Covid[Recovered] ) ) )
+)
+
+Countries Covered =
+DISTINCTCOUNT ( Fact_Covid[ISO_Code] )
+
+Latest Data Date =
+CALCULATE ( MAX ( Fact_Covid[Date] ), ALL ( Dim_Date ) )
+
+Selected End Date =
+MAX ( Dim_Date[Date] )
+
+// ---------- Daily (add up over any period) ----------
+
+Daily Cases =
+SUM ( Fact_Covid[Daily_Cases] )
+
+Daily Deaths =
+SUM ( Fact_Covid[Daily_Deaths] )
+
+Daily Recoveries =
+SUM ( Fact_Covid[Daily_Recoveries] )
+
+// ---------- Rolling averages (window ignores the date slicer so the first days of a range are correct) ----------
+
+7-Day Average Cases =
+VAR EndDate = MAX ( Dim_Date[Date] )
+VAR FirstDate = CALCULATE ( MIN ( Dim_Date[Date] ), ALL ( Dim_Date ) )
+VAR Window =
+    FILTER ( ALL ( Dim_Date ), Dim_Date[Date] > EndDate - 7 && Dim_Date[Date] <= EndDate )
+RETURN
+    IF ( EndDate - FirstDate >= 6, DIVIDE ( CALCULATE ( SUM ( Fact_Covid[Daily_Cases] ), Window ), 7 ) )
+
+7-Day Average Deaths =
+VAR EndDate = MAX ( Dim_Date[Date] )
+VAR FirstDate = CALCULATE ( MIN ( Dim_Date[Date] ), ALL ( Dim_Date ) )
+VAR Window =
+    FILTER ( ALL ( Dim_Date ), Dim_Date[Date] > EndDate - 7 && Dim_Date[Date] <= EndDate )
+RETURN
+    IF ( EndDate - FirstDate >= 6, DIVIDE ( CALCULATE ( SUM ( Fact_Covid[Daily_Deaths] ), Window ), 7 ) )
+
+// ---------- Rates ----------
+
+// Reported deaths / reported cases. Not a mortality rate for the population.
+Case Fatality Ratio =
+DIVIDE ( [Total Deaths], [Total Cases] )
+
+Population =
+SUM ( Dim_Country[Population] )
+
+// Numerator and denominator are restricted to countries that have a population value.
+Cases Per 100K =
+VAR WithPopulation = FILTER ( Dim_Country, NOT ISBLANK ( Dim_Country[Population] ) )
+RETURN
+    DIVIDE (
+        CALCULATE ( [Total Cases], WithPopulation ),
+        CALCULATE ( SUM ( Dim_Country[Population] ), WithPopulation )
+    ) * 100000
+
+Deaths Per 100K =
+VAR WithPopulation = FILTER ( Dim_Country, NOT ISBLANK ( Dim_Country[Population] ) )
+RETURN
+    DIVIDE (
+        CALCULATE ( [Total Deaths], WithPopulation ),
+        CALCULATE ( SUM ( Dim_Country[Population] ), WithPopulation )
+    ) * 100000
+
+// ---------- Peaks (within the current country and date selection) ----------
+
+Peak Daily Cases =
+MAXX ( VALUES ( Dim_Date[Date] ), [Daily Cases] )
+
+Peak Daily Cases Date =
+VAR Peak = [Peak Daily Cases]
+RETURN
+    MINX ( FILTER ( VALUES ( Dim_Date[Date] ), [Daily Cases] = Peak ), Dim_Date[Date] )
+
+Peak Daily Deaths =
+MAXX ( VALUES ( Dim_Date[Date] ), [Daily Deaths] )
+
+Peak Daily Deaths Date =
+VAR Peak = [Peak Daily Deaths]
+RETURN
+    MINX ( FILTER ( VALUES ( Dim_Date[Date] ), [Daily Deaths] = Peak ), Dim_Date[Date] )
+
+Peak 7-Day Average Cases =
+MAXX ( VALUES ( Dim_Date[Date] ), [7-Day Average Cases] )
+
+Peak 7-Day Average Cases Date =
+VAR Peak = [Peak 7-Day Average Cases]
+RETURN
+    MINX ( FILTER ( VALUES ( Dim_Date[Date] ), [7-Day Average Cases] = Peak ), Dim_Date[Date] )
+
+Peak 7-Day Average Deaths =
+MAXX ( VALUES ( Dim_Date[Date] ), [7-Day Average Deaths] )
+
+Peak 7-Day Average Deaths Date =
+VAR Peak = [Peak 7-Day Average Deaths]
+RETURN
+    MINX ( FILTER ( VALUES ( Dim_Date[Date] ), [7-Day Average Deaths] = Peak ), Dim_Date[Date] )
+
+// ---------- Period over period (previous period = same number of days directly before the selection) ----------
+
+Cases Previous Period =
+VAR StartDate = MIN ( Dim_Date[Date] )
+VAR Days = COUNTROWS ( VALUES ( Dim_Date[Date] ) )
+VAR FirstDate = CALCULATE ( MIN ( Dim_Date[Date] ), ALL ( Dim_Date ) )
+VAR PrevStart = StartDate - Days
+VAR PrevEnd = StartDate - 1
+RETURN
+    IF (
+        PrevStart >= FirstDate,
+        CALCULATE (
+            [Daily Cases],
+            FILTER ( ALL ( Dim_Date ), Dim_Date[Date] >= PrevStart && Dim_Date[Date] <= PrevEnd )
+        )
+    )
+
+Deaths Previous Period =
+VAR StartDate = MIN ( Dim_Date[Date] )
+VAR Days = COUNTROWS ( VALUES ( Dim_Date[Date] ) )
+VAR FirstDate = CALCULATE ( MIN ( Dim_Date[Date] ), ALL ( Dim_Date ) )
+VAR PrevStart = StartDate - Days
+VAR PrevEnd = StartDate - 1
+RETURN
+    IF (
+        PrevStart >= FirstDate,
+        CALCULATE (
+            [Daily Deaths],
+            FILTER ( ALL ( Dim_Date ), Dim_Date[Date] >= PrevStart && Dim_Date[Date] <= PrevEnd )
+        )
+    )
+
+Cases Change vs Previous Period =
+[Daily Cases] - [Cases Previous Period]
+
+Cases Change vs Previous Period % =
+DIVIDE ( [Daily Cases] - [Cases Previous Period], [Cases Previous Period] )
+
+Deaths Change vs Previous Period % =
+DIVIDE ( [Daily Deaths] - [Deaths Previous Period], [Deaths Previous Period] )
+
+// ---------- Selection and ranking ----------
+
+Selected Country =
+IF (
+    HASONEVALUE ( Dim_Country[Country] ),
+    SELECTEDVALUE ( Dim_Country[Country] ),
+    IF ( ISFILTERED ( Dim_Country[Country] ), "Selected countries", "All countries" )
+)
+
+Selected Country Cases =
+IF ( HASONEVALUE ( Dim_Country[Country] ), [Total Cases] )
+
+Selected Country Deaths =
+IF ( HASONEVALUE ( Dim_Country[Country] ), [Total Deaths] )
+
+Share of Global Cases =
+DIVIDE ( [Total Cases], CALCULATE ( [Total Cases], ALL ( Dim_Country ) ) )
+
+// Rank among all countries (ignores country and region slicers). Blank when more than one country is in context.
+Rank by Cases =
+IF (
+    HASONEVALUE ( Dim_Country[Country] ),
+    RANKX ( ALL ( Dim_Country[Country] ), [Total Cases], , DESC, SKIP )
+)
+
+Rank by Deaths =
+IF (
+    HASONEVALUE ( Dim_Country[Country] ),
+    RANKX ( ALL ( Dim_Country[Country] ), [Total Deaths], , DESC, SKIP )
+)
+
+// ---------- Data quality ----------
+
+Revision Days =
+SUM ( Fact_Covid[Revision_Flag] )
+
+Inconsistent Records =
+SUM ( Fact_Covid[Inconsistency_Flag] )
+
+// ---------- Titles and labels ----------
+
+Title Overview =
+"Reported COVID-19 cases and deaths through " & FORMAT ( [Selected End Date], "d mmm yyyy" )
+
+Subtitle Overview =
+"Historical archive (JHU CSSE), last data date " & FORMAT ( [Latest Data Date], "d mmm yyyy" )
+    & ". Cases and deaths as reported by each country; not current conditions."
+
+Title Country Detail =
+[Selected Country] & ": " & FORMAT ( MIN ( Dim_Date[Date] ), "d mmm yyyy" ) & " to "
+    & FORMAT ( MAX ( Dim_Date[Date] ), "d mmm yyyy" )
+
+Tooltip Title =
+FORMAT ( MAX ( Dim_Date[Date] ), "d mmm yyyy" )
+    & IF ( HASONEVALUE ( Dim_Country[Country] ), "  |  " & SELECTEDVALUE ( Dim_Country[Country] ), "" )
+
+// ---------- Conditional formatting (use with Format > fx > Format style: Field value) ----------
+
+// Rising cases = red, falling = green, otherwise grey
+Change Color =
+VAR Change = [Cases Change vs Previous Period %]
+RETURN
+    IF ( ISBLANK ( Change ), "#666666", IF ( Change > 0, "#A33B32", IF ( Change < 0, "#2F6F4F", "#666666" ) ) )
